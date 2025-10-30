@@ -9,7 +9,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"GO/schemas" // <-- importe o model corretamente
+	"GO/schemas"
 )
 
 var DB *gorm.DB
@@ -21,25 +21,26 @@ func InitDatabase() {
 	}
 
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"),
+		os.Getenv("DB_SSLMODE"),
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Erro ao conectar no Postgres: %v", err)
+		log.Fatalf("Erro ao conectar no PostgreSQL: %v", err)
 	}
 
-	// 🔥 Migrate: cria a tabela openings
-	err = db.AutoMigrate(&schemas.Opening{}, &schemas.Create{})
+	// Migra todas as tabelas para o mesmo banco
+	err = db.AutoMigrate(&schemas.User{}, &schemas.Opening{})
 	if err != nil {
 		log.Fatalf("Erro ao migrar schema: %v", err)
 	}
 
 	DB = db
-	log.Println("Banco Postgres conectado e migrado com sucesso")
+	log.Println("PostgreSQL conectado - Todas as tabelas migradas com sucesso")
 }

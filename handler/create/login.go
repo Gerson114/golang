@@ -25,7 +25,7 @@ func LoginUser(c *gin.Context) {
 	}
 
 	// 3. Declara struct de usuário para buscar no DB
-	var user schemas.Create
+	var user schemas.User
 
 	// 4. Busca o usuário pelo email
 	if err := config.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {

@@ -1,0 +1,51 @@
+# Binários
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Arquivos de teste
+*.test
+
+# Arquivos de cobertura
+*.out
+
+# Dependências
+vendor/
+
+# Arquivos de desenvolvimento
+.env
+.env.local
+.env.development
+.env.test
+
+# Logs
+*.log
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentação
+README.md
+*.md
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db

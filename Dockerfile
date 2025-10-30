@@ -1,27 +1,32 @@
-# Etapa 1: build
-FROM golang:1.24.0-alpine AS builder
+# Build stage
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
-# Copia os arquivos do projeto
+# Install git for private modules
+RUN apk add --no-cache git
+
+# Copy go mod files
 COPY go.mod go.sum ./
 RUN go mod download
 
+# Copy source code
 COPY . .
 
-# Compila o binário de forma estática
-RUN go build -o main -ldflags="-s -w"
+# Build binary with optimizations
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags='-w -s -extldflags "-static"' -o main .
 
-# Etapa 2: imagem final
-FROM alpine:latest
+# Production stage
+FROM scratch
 
-WORKDIR /app
+# Copy SSL certificates
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-# Copia apenas o binário do build
-COPY --from=builder /app/main .
+# Copy binary
+COPY --from=builder /app/main /main
 
-# Expõe a porta da aplicação
+# Expose port
 EXPOSE 8080
 
-# Executa o binário
-CMD ["./main"]
+# Run binary
+CMD ["/main"]

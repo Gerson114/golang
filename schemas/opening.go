@@ -2,23 +2,23 @@ package schemas
 
 import "gorm.io/gorm"
 
-type Opening struct {
+type User struct {
 	gorm.Model
-	Role     string
-	Company  string
-	Location string // <- Corrigido aqui
-	Remote   bool
-	Link     string
-	Salary   int64
-	UserId   uint   `json:"-"`
-	User     Create `gorm:"foreignKey:UserId"`
+	Nome     string    `json:"nome"`
+	Email    string    `json:"email" gorm:"unique"`
+	PassWord string    `json:"-"`
+	Role     string    `json:"role" gorm:"default:user"`
+	Openings []Opening `json:"openings,omitempty" gorm:"foreignKey:UserId"`
 }
 
-type Create struct {
+type Opening struct {
 	gorm.Model
-	Nome     string
-	Email    string `gorm:"unique"`
-	PassWord string
-	Openings []Opening `gorm:"foreignKey:UserId"` // Um usuário tem muitos openings
-	Role     string    `gorm:"default:user"`      // user ou admin
+	Role     string `json:"role"`
+	Company  string `json:"company"`
+	Location string `json:"location"`
+	Remote   bool   `json:"remote"`
+	Link     string `json:"link"`
+	Salary   int64  `json:"salary"`
+	UserId   uint   `json:"-"`
+	User     User   `json:"user,omitempty" gorm:"foreignKey:UserId"`
 }
