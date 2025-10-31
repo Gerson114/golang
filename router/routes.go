@@ -37,7 +37,7 @@ func InitializeRoutes(router *gin.Engine) {
 
 	clientes.GET("/buscar", middleware.AuthorizeCliente(), clientservice.ShowOpenHandler)
 
-	clientes.POST("/create", cliente.CreateUser)
+	clientE.POST("/create", cliente.CreateUser)
 	clientes.POST("/login", cliente.LoginUser)
 
 }
