@@ -13,6 +13,11 @@ import (
 func AuthorizeRole(requiredRole string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+		if len(jwtSecret) == 0 {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "JWT_SECRET não configurado"})
+			c.Abort()
+			return
+		}
 
 		// 1. Pega token do header Authorization
 		authHeader := c.GetHeader("Authorization")
@@ -22,6 +27,7 @@ func AuthorizeRole(requiredRole string) gin.HandlerFunc {
 			return
 		}
 
+		// Remove prefixo "Bearer "
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == authHeader {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Formato de token inválido"})
@@ -55,9 +61,18 @@ func AuthorizeRole(requiredRole string) gin.HandlerFunc {
 			return
 		}
 
-		// 5. Salva role e userId no contexto
+		// 5. Pega user_id e converte para uint64
+		userIdFloat, ok := claims["user_id"].(float64) // JWT numeric sempre vem como float64
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "user_id inválido no token"})
+			c.Abort()
+			return
+		}
+		userId := uint64(userIdFloat)
+
+		// 6. Salva role e userId no contexto
 		c.Set("role", role)
-		c.Set("userId", claims["userId"])
+		c.Set("userId", userId)
 
 		c.Next()
 	}
