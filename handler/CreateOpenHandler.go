@@ -31,6 +31,19 @@ func CreateOpenHandler(ctx *gin.Context) {
 		return
 	}
 
+	// Verifica se userID é válido
+	if userID == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "UserId inválido"})
+		return
+	}
+
+	// Verifica se o usuário existe
+	var user schemas.User
+	if err := config.DB.First(&user, userID).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Usuário não encontrado"})
+		return
+	}
+
 	// Atribui o userId ao registro
 	opening.UserId = uint(userID)
 
