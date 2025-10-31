@@ -10,37 +10,56 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// LoginUser autentica o usuário e gera um JWT
-func LoginUser(c *gin.Context) {
-	var input struct {
-		Email    string `json:"email" binding:"required,email"`
-		PassWord string `json:"password" binding:"required"`
-	}
+// Estrutura de entrada de login
+type LoginInput struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
 
+// Função para autenticar o usuário
+func LoginUser(c *gin.Context) {
+	var input LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Dados inválidos. Verifique email e senha.",
+		})
 		return
 	}
 
+	// Buscar usuário pelo email
 	var user schemas.User
 	if err := config.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciais inválidas"})
 		return
 	}
 
-	// Apenas hash bcrypt - máxima segurança
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PassWord), []byte(input.PassWord)); err != nil {
+	// ⚠️ Verifique se user.Password realmente contém o hash bcrypt
+	// Exemplo: "$2a$10$z8sJ..."
+	if len(user.PassWord) < 20 {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Senha no banco não é um hash válido. Verifique o cadastro do usuário.",
+		})
+		return
+	}
+
+	// Comparar senha informada com o hash do banco
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PassWord), []byte(input.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciais inválidas"})
 		return
 	}
 
-	// 6. Gera token JWT passando user ID e role
+	// Gerar token JWT
 	token, err := utils.GenerateJWT(user.ID, user.Role)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao gerar token"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Erro interno ao gerar token JWT.",
+		})
 		return
 	}
 
-	// 7. Retorna o token para o cliente
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login realizado com sucesso",
+		"token":   token,
+		"role":    user.Role,
+	})
 }
