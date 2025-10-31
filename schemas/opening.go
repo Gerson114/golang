@@ -22,11 +22,3 @@ type Opening struct {
 	UserId   uint   `json:"-"` // será preenchido automaticamente
 	User     User   `json:"user,omitempty" gorm:"foreignKey:UserId"`
 }
-
-type Cliente struct {
-	gorm.Model
-	Nome     string `json:"nome"`
-	Email    string `json:"email" gorm:"unique"`
-	PassWord string `json:"passWord"` // tag alinhada com JSON
-	Role     string `json:"role" gorm:"default:user"`
-}

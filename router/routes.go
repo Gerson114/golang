@@ -21,14 +21,18 @@ func InitializeRoutes(router *gin.Engine) {
 		Protect.GET("/openingr", handler.ListOpenHandler)
 	}
 
+	//EMPRESA
+
 	usuario := router.Group("/api/v2")
 
 	usuario.POST("/cadastro", create.CreateUser)
 	usuario.POST("/login", create.LoginUser)
 
+	//CLIENTE
+
 	cliente := router.Group("/api/v3")
 
-	cliente.POST("/create")
-	cliente.POST("/login")
+	cliente.POST("/create", create.CreateUser)
+	cliente.POST("/login", create.LoginUser)
 
 }
