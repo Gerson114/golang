@@ -12,30 +12,25 @@ import (
 
 // LoginUser autentica o usuário e gera um JWT
 func LoginUser(c *gin.Context) {
-	// 1. Estrutura para receber os dados de login
 	var input struct {
 		Email    string `json:"email" binding:"required,email"`
 		PassWord string `json:"password" binding:"required"`
 	}
 
-	// 2. Faz o bind e valida o JSON
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos ou incompletos"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos"})
 		return
 	}
 
-	// 3. Declara struct de usuário para buscar no DB
 	var user schemas.User
-
-	// 4. Busca o usuário pelo email
 	if err := config.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email não encontrado"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciais inválidas"})
 		return
 	}
 
-	// 5. Compara a senha recebida com o hash armazenado
+	// Apenas hash bcrypt - máxima segurança
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PassWord), []byte(input.PassWord)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Senha incorreta"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciais inválidas"})
 		return
 	}
 
