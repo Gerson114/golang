@@ -34,7 +34,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 	input.PassWord = string(hashedPassword)
-	input.Role = "user" // padrão
+	input.Role = "empresa" // padrão
 
 	// Salvar no banco
 	if err := config.DB.Create(&input).Error; err != nil {
