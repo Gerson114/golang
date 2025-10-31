@@ -6,7 +6,7 @@ type User struct {
 	gorm.Model
 	Nome     string    `json:"nome"`
 	Email    string    `json:"email" gorm:"unique"`
-	PassWord string    `json:"-"`
+	PassWord string    `json:"password"` // <--- aqui estava o problema
 	Role     string    `json:"role" gorm:"default:user"`
 	Openings []Opening `json:"openings,omitempty" gorm:"foreignKey:UserId"`
 }
