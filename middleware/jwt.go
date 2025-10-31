@@ -89,14 +89,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 7. Só permite role "empresa"
-		if role != "empresa" {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Acesso negado: apenas empresas podem acessar"})
-			c.Abort()
-			return
-		}
-
-		// 8. Salva userId e role no contexto
+		// 7. Salva userId e role no contexto
 		c.Set("userId", userId)
 		c.Set("role", role)
 
