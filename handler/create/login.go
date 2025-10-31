@@ -15,7 +15,7 @@ func LoginUser(c *gin.Context) {
 	// 1. Estrutura para receber os dados de login
 	var input struct {
 		Email    string `json:"email" binding:"required,email"`
-		Password string `json:"password" binding:"required"`
+		PassWord string `json:"password" binding:"required"`
 	}
 
 	// 2. Faz o bind e valida o JSON
@@ -34,7 +34,7 @@ func LoginUser(c *gin.Context) {
 	}
 
 	// 5. Compara a senha recebida com o hash armazenado
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PassWord), []byte(input.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PassWord), []byte(input.PassWord)); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Senha incorreta"})
 		return
 	}
