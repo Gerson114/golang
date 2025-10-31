@@ -13,6 +13,11 @@ func AuthorizeCliente() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Pega a chave secreta do .env
 		jwtSecret := []byte(os.Getenv("JWT_SECRET"))
+		if len(jwtSecret) == 0 {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "JWT_SECRET não configurado"})
+			c.Abort()
+			return
+		}
 
 		// Pega o token do header Authorization
 		authHeader := c.GetHeader("Authorization")
@@ -56,9 +61,18 @@ func AuthorizeCliente() gin.HandlerFunc {
 			return
 		}
 
+		// Pega user_id e converte para uint64
+		userIdFloat, ok := claims["user_id"].(float64)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "user_id inválido no token"})
+			c.Abort()
+			return
+		}
+		userId := uint64(userIdFloat)
+
 		// Salva role e userId no contexto
 		c.Set("role", role)
-		c.Set("userId", claims["userId"])
+		c.Set("userId", userId)
 
 		c.Next()
 	}

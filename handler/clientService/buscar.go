@@ -10,17 +10,32 @@ import (
 )
 
 func ShowOpenHandler(ctx *gin.Context) {
-	// Busca todas as vagas
 	var openings []schemas.Opening
-	if err := config.DB.
-		Preload("User"). // carrega os dados do usuário relacionado
-		Find(&openings).Error; err != nil {
+
+	// Busca todas as vagas, carregando o usuário relacionado
+	if err := config.DB.Preload("User").Find(&openings).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar dados: " + err.Error()})
 		return
 	}
 
-	// Retorna todas as vagas
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": openings,
-	})
+	// Monta a resposta com apenas nome e email da empresa
+	var result []map[string]interface{}
+	for _, o := range openings {
+		item := map[string]interface{}{
+			"id":       o.ID,
+			"role":     o.Role,
+			"company":  o.Company,
+			"location": o.Location,
+			"remote":   o.Remote,
+			"link":     o.Link,
+			"salary":   o.Salary,
+			"user": map[string]interface{}{
+				"nome":  o.User.Nome,
+				"email": o.User.Email,
+			},
+		}
+		result = append(result, item)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": result})
 }
