@@ -29,13 +29,13 @@ func LoginUser(c *gin.Context) {
 
 	// 4. Busca o usuário pelo email
 	if err := config.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuário ou senha inválidos"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email não encontrado"})
 		return
 	}
 
 	// 5. Compara a senha recebida com o hash armazenado
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PassWord), []byte(input.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuário ou senha inválidos"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Senha incorreta"})
 		return
 	}
 
