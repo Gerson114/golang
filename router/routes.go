@@ -2,6 +2,7 @@ package router
 
 import (
 	"GO/handler"
+	"GO/handler/cliente"
 	"GO/handler/create"
 	"GO/middleware"
 
@@ -30,9 +31,9 @@ func InitializeRoutes(router *gin.Engine) {
 
 	//CLIENTE
 
-	cliente := router.Group("/api/v3")
+	clientes := router.Group("/api/v3")
 
-	cliente.POST("/create", create.CreateUser)
-	cliente.POST("/login", create.LoginUser)
+	clientes.POST("/create", cliente.CreateUser)
+	clientes.POST("/login", cliente.LoginUser)
 
 }
