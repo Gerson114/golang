@@ -26,4 +26,9 @@ func InitializeRoutes(router *gin.Engine) {
 	usuario.POST("/cadastro", create.CreateUser)
 	usuario.POST("/login", create.LoginUser)
 
+	cliente := router.Group("/api/v3")
+
+	cliente.POST("/create")
+	cliente.POST("/login")
+
 }
