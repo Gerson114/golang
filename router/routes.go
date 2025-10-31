@@ -2,6 +2,7 @@ package router
 
 import (
 	"GO/handler"
+	clientservice "GO/handler/clientService"
 	"GO/handler/cliente"
 	"GO/handler/create"
 	"GO/middleware"
@@ -12,17 +13,17 @@ import (
 func InitializeRoutes(router *gin.Engine) {
 
 	Protect := router.Group("/api/v1")
-	Protect.Use(middleware.JWTAuthMiddleware())
+	Protect.Use(middleware.AuthorizeEmpresa())
+
+	//EMPRESA
 
 	{
-		Protect.GET("/buscar", middleware.JWTAuthMiddleware(), handler.ShowOpenHandler)
-		Protect.POST("/opening", middleware.JWTAuthMiddleware(), handler.CreateOpenHandler)
-		Protect.DELETE("/openingss", handler.DeleteOpenHandler)
+		Protect.GET("/buscar", middleware.AuthorizeEmpresa(), handler.ShowOpenHandler)
+		Protect.POST("/opening", middleware.AuthorizeEmpresa(), handler.CreateOpenHandler)
+		Protect.DELETE("/deletar", middleware.AuthorizeEmpresa(), handler.DeleteOpenHandler)
 		Protect.PUT("/editar", handler.UpdateOpenHandler)
 		Protect.GET("/openingr", handler.ListOpenHandler)
 	}
-
-	//EMPRESA
 
 	usuario := router.Group("/api/v2")
 
@@ -32,6 +33,9 @@ func InitializeRoutes(router *gin.Engine) {
 	//CLIENTE
 
 	clientes := router.Group("/api/v3")
+	clientes.Use(middleware.AuthorizeCliente())
+
+	clientes.GET("/buscar", middleware.AuthorizeCliente(), clientservice.ShowOpenHandler)
 
 	clientes.POST("/create", cliente.CreateUser)
 	clientes.POST("/login", cliente.LoginUser)
