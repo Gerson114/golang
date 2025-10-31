@@ -13,13 +13,9 @@ import (
 )
 
 // Estrutura de entrada de login
-type LoginInput struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
-}
 
 func LoginUser(c *gin.Context) {
-	var input LoginInput
+	var input schemas.User
 
 	// Bind do JSON
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -30,8 +26,8 @@ func LoginUser(c *gin.Context) {
 
 	// Trim para evitar espaços extras
 	input.Email = strings.TrimSpace(input.Email)
-	input.Password = strings.TrimSpace(input.Password)
-	fmt.Println("DEBUG: JSON recebido - Email:", input.Email, "Senha:", input.Password)
+	input.PassWord = strings.TrimSpace(input.PassWord)
+	fmt.Println("DEBUG: JSON recebido - Email:", input.Email, "Senha:", input.PassWord)
 
 	// Buscar usuário pelo email
 	var user schemas.User
@@ -43,7 +39,7 @@ func LoginUser(c *gin.Context) {
 	fmt.Println("DEBUG: usuário encontrado - ID:", user.ID, "Email:", user.Email)
 
 	// Comparar senha informada com hash do banco
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PassWord), []byte(input.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PassWord), []byte(input.PassWord)); err != nil {
 		fmt.Println("DEBUG: senha incorreta")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciais inválidas"})
 		return
